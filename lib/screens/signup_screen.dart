@@ -1,10 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 import '../widgets/app_logo.dart';
+import '../widgets/auth_tab_switch.dart';
 import '../widgets/campus_trust_badge.dart';
 import '../widgets/primary_button.dart';
 import '../widgets/sso_button.dart';
 import '../widgets/success_story_card.dart';
+import 'login_screen.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -28,9 +31,31 @@ class _SignupScreenState extends State<SignupScreen> {
     super.dispose();
   }
 
-  void _handleSignup() {
-    if (_formKey.currentState?.validate() ?? false) {
-      Navigator.pushReplacementNamed(context, '/home');
+  void _handleSignup() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    final mail = _emailController.text.trim();
+    final pass = _passwordController.text.trim();
+
+    try {
+      await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: mail, password: pass)
+          .then((value) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Account Created")),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+      });
+    } catch (err) {
+      debugPrint(err.toString());
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(err.toString())),
+        );
+      }
     }
   }
 
@@ -68,7 +93,10 @@ class _SignupScreenState extends State<SignupScreen> {
                 const SizedBox(height: 18),
                 const SuccessStoryCard(),
                 const SizedBox(height: 18),
-                _buildTabSwitch(),
+                AuthTabSwitch(
+                  isSignIn: false,
+                  onToggle: () => Navigator.pop(context),
+                ),
                 const SizedBox(height: 18),
                 _buildNameField(),
                 const SizedBox(height: 14),
@@ -119,66 +147,6 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Widget _buildTabSwitch() {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: AppColors.borderLight,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: InkWell(
-              onTap: () => Navigator.pop(context),
-              borderRadius: BorderRadius.circular(9),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.login_rounded, size: 14, color: AppColors.muted),
-                  SizedBox(width: 6),
-                  Text(
-                    'Sign In',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.muted,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 9),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(9),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.person_add_alt_1_rounded, size: 14, color: AppColors.primary),
-                  SizedBox(width: 6),
-                  Text(
-                    'Create Account',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildNameField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,7 +161,7 @@ class _SignupScreenState extends State<SignupScreen> {
           style: const TextStyle(fontSize: 13),
           decoration: const InputDecoration(
             prefixIcon: Icon(Icons.person_outline_rounded, size: 18, color: AppColors.muted),
-            hintText: 'Alex Rivers',
+            hintText: 'Avi',
           ),
           validator: (v) => v == null || v.isEmpty ? 'Please enter your name' : null,
         ),
@@ -216,7 +184,7 @@ class _SignupScreenState extends State<SignupScreen> {
           style: const TextStyle(fontSize: 13),
           decoration: const InputDecoration(
             prefixIcon: Icon(Icons.email_outlined, size: 18, color: AppColors.muted),
-            hintText: 'alex.rivers@campus.edu',
+            hintText: 'avi@campus.edu',
           ),
           validator: (v) => v == null || v.isEmpty ? 'Please enter campus email' : null,
         ),

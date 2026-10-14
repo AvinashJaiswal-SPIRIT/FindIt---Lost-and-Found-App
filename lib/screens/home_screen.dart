@@ -9,6 +9,8 @@ import '../widgets/category_chip.dart';
 import '../widgets/item_card.dart';
 import '../widgets/recovery_banner.dart';
 import 'item_details_screen.dart';
+import 'listings_screen.dart';
+import 'profile_screen.dart';
 import 'report_item_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -93,8 +95,10 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: BottomNavBar(
         currentIndex: 0,
         onTap: (index) {
-          if (index == 1) Navigator.pushNamed(context, '/listings');
-          if (index == 2) Navigator.pushNamed(context, '/profile');
+          final target = index == 1 ? const ListingsScreen() : const ProfileScreen();
+          if (index == 1 || index == 2) {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => target));
+          }
         },
       ),
     );

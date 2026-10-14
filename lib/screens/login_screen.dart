@@ -1,10 +1,15 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 import '../widgets/app_logo.dart';
+import '../widgets/auth_tab_switch.dart';
 import '../widgets/campus_trust_badge.dart';
 import '../widgets/primary_button.dart';
 import '../widgets/sso_button.dart';
 import '../widgets/success_story_card.dart';
+
+import 'home_screen.dart';
+import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,8 +20,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController(text: 'alex.rivers@campus.edu');
-  final _passwordController = TextEditingController(text: 'password123');
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
   @override
@@ -26,9 +31,31 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _handleLogin() {
-    if (_formKey.currentState?.validate() ?? false) {
-      Navigator.pushReplacementNamed(context, '/home');
+  void _handleLogin() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    final mail = _emailController.text.trim();
+    final pass = _passwordController.text.trim();
+
+    try {
+      await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: mail, password: pass)
+          .then((value) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Login Successful")),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+      });
+    } catch (err) {
+      debugPrint(err.toString());
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(err.toString())),
+        );
+      }
     }
   }
 
@@ -66,7 +93,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 18),
                 const SuccessStoryCard(),
                 const SizedBox(height: 18),
-                _buildTabSwitch(),
+                AuthTabSwitch(
+                  isSignIn: true,
+                  onToggle: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const SignupScreen()),
+                  ),
+                ),
                 const SizedBox(height: 18),
                 _buildEmailField(),
                 const SizedBox(height: 14),
@@ -111,66 +144,6 @@ class _LoginScreenState extends State<LoginScreen> {
           fontWeight: FontWeight.w700,
           letterSpacing: 0.8,
         ),
-      ),
-    );
-  }
-
-  Widget _buildTabSwitch() {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: AppColors.borderLight,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 9),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(9),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.login_rounded, size: 14, color: AppColors.primary),
-                  SizedBox(width: 6),
-                  Text(
-                    'Sign In',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Expanded(
-            child: InkWell(
-              onTap: () => Navigator.pushNamed(context, '/signup'),
-              borderRadius: BorderRadius.circular(9),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.person_add_alt_1_rounded, size: 14, color: AppColors.muted),
-                  SizedBox(width: 6),
-                  Text(
-                    'Create Account',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.muted,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -267,7 +240,10 @@ class _LoginScreenState extends State<LoginScreen> {
       children: [
         const Text("Don't have an account? ", style: TextStyle(fontSize: 11, color: AppColors.muted)),
         GestureDetector(
-          onTap: () => Navigator.pushNamed(context, '/signup'),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const SignupScreen()),
+          ),
           child: const Text(
             'Create an account',
             style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.primary),

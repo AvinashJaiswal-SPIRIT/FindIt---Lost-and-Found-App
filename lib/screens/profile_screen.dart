@@ -4,6 +4,9 @@ import '../widgets/app_header.dart';
 import '../widgets/bottom_nav_bar.dart';
 import '../widgets/profile_setting_tile.dart';
 import '../widgets/profile_stat_card.dart';
+import 'home_screen.dart';
+import 'listings_screen.dart';
+import 'login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -43,8 +46,10 @@ class ProfileScreen extends StatelessWidget {
       bottomNavigationBar: BottomNavBar(
         currentIndex: 2,
         onTap: (index) {
-          if (index == 0) Navigator.pushReplacementNamed(context, '/home');
-          if (index == 1) Navigator.pushReplacementNamed(context, '/listings');
+          final target = index == 0 ? const HomeScreen() : const ListingsScreen();
+          if (index == 0 || index == 1) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => target));
+          }
         },
       ),
     );
@@ -270,7 +275,11 @@ class ProfileScreen extends StatelessWidget {
           ),
         ),
         onTap: () {
-          Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const LoginScreen()),
+            (route) => false,
+          );
         },
       ),
     );

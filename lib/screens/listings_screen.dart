@@ -6,7 +6,9 @@ import '../widgets/app_header.dart';
 import '../widgets/bottom_nav_bar.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/item_card.dart';
+import 'home_screen.dart';
 import 'item_details_screen.dart';
+import 'profile_screen.dart';
 import 'report_item_screen.dart';
 
 class ListingsScreen extends StatefulWidget {
@@ -96,8 +98,10 @@ class _ListingsScreenState extends State<ListingsScreen> {
       bottomNavigationBar: BottomNavBar(
         currentIndex: 1,
         onTap: (index) {
-          if (index == 0) Navigator.pushReplacementNamed(context, '/home');
-          if (index == 2) Navigator.pushNamed(context, '/profile');
+          final target = index == 0 ? const HomeScreen() : const ProfileScreen();
+          if (index == 0 || index == 2) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => target));
+          }
         },
       ),
     );
