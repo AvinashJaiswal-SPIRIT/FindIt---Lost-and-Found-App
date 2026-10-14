@@ -8,10 +8,12 @@ import '../widgets/deed_banner.dart';
 import '../widgets/item_type_selector.dart';
 import '../widgets/photo_upload_box.dart';
 import '../widgets/primary_button.dart';
+import '../widgets/report_text_field.dart';
 import '../widgets/safe_handoff_tile.dart';
 
 class ReportItemScreen extends StatefulWidget {
-  const ReportItemScreen({super.key});
+  final ItemModel? itemToEdit;
+  const ReportItemScreen({super.key, this.itemToEdit});
 
   @override
   State<ReportItemScreen> createState() => _ReportItemScreenState();
@@ -37,6 +39,20 @@ class _ReportItemScreenState extends State<ReportItemScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.itemToEdit != null) {
+      final item = widget.itemToEdit!;
+      _titleController.text = item.title;
+      _locationController.text = item.location;
+      _descController.text = item.description;
+      _category = _categories.contains(item.category) ? item.category : _categories.first;
+      _itemType = item.type;
+      _safeHandOff = item.isSafeHandOff;
+    }
+  }
+
+  @override
   void dispose() {
     _titleController.dispose();
     _locationController.dispose();
@@ -46,13 +62,33 @@ class _ReportItemScreenState extends State<ReportItemScreen> {
   }
 
   void _submitReport() {
-    if (_formKey.currentState?.validate() ?? false) {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    if (widget.itemToEdit != null) {
+      final index = sampleItems.indexWhere((i) => i.id == widget.itemToEdit!.id);
+      if (index != -1) {
+        sampleItems[index] = widget.itemToEdit!.copyWith(
+          title: _titleController.text.trim(),
+          description: _descController.text.trim(),
+          category: _category,
+          location: _locationController.text.trim(),
+          type: _itemType,
+          isSafeHandOff: _safeHandOff,
+        );
+      }
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          duration: Duration(seconds: 5),
+          content: Text('Item updated successfully!'),
+        ),
+      );
+    } else {
       final newItem = ItemModel(
         id: 'FD-${DateTime.now().millisecondsSinceEpoch % 10000}',
-        title: _titleController.text,
-        description: _descController.text,
+        title: _titleController.text.trim(),
+        description: _descController.text.trim(),
         category: _category,
-        location: _locationController.text,
+        location: _locationController.text.trim(),
         timeAgo: 'Just now',
         type: _itemType,
         imageUrl: 'assets/images/report_image.jpg',
@@ -62,18 +98,25 @@ class _ReportItemScreenState extends State<ReportItemScreen> {
         isSafeHandOff: _safeHandOff,
       );
       sampleItems.insert(0, newItem);
+      ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Item reported successfully!')),
+        const SnackBar(
+          duration: Duration(seconds: 5),
+          content: Text('Item reported successfully!'),
+        ),
       );
-      Navigator.pop(context);
     }
+    Navigator.pop(context, true);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: const AppHeader(title: 'Report Item', showBack: true),
+      appBar: AppHeader(
+        title: widget.itemToEdit != null ? 'Edit Listing' : 'Report Item',
+        showBack: true,
+      ),
       body: Form(
         key: _formKey,
         child: ListView(
@@ -106,8 +149,8 @@ class _ReportItemScreenState extends State<ReportItemScreen> {
             ),
             const SizedBox(height: 20),
             PrimaryButton(
-              text: 'Submit Report',
-              icon: Icons.play_arrow_rounded,
+              text: widget.itemToEdit != null ? 'Save Changes' : 'Submit Report',
+              icon: Icons.check_circle_outline,
               onPressed: _submitReport,
             ),
             const SizedBox(height: 10),
@@ -145,28 +188,16 @@ class _ReportItemScreenState extends State<ReportItemScreen> {
   }
 
   Widget _buildTitleField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text('Item Title *', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-            Text('${_titleController.text.length} / 60', style: const TextStyle(fontSize: 10, color: AppColors.muted)),
-          ],
-        ),
-        const SizedBox(height: 6),
-        TextFormField(
-          controller: _titleController,
-          onChanged: (_) => setState(() {}),
-          style: const TextStyle(fontSize: 13),
-          decoration: const InputDecoration(
-            hintText: 'e.g. Sony WH-1000XM4 Headphones',
-            helperText: 'Give a concise name including brand or model',
-            helperStyle: TextStyle(fontSize: 10, color: AppColors.muted),
-          ),
-        ),
-      ],
+    return ReportTextField(
+      label: 'Item Title *',
+      hint: 'e.g. Sony WH-1000XM4 Headphones',
+      helperText: 'Give a concise name including brand or model',
+      controller: _titleController,
+      onChanged: (_) => setState(() {}),
+      trailing: Text(
+        '${_titleController.text.length} / 60',
+        style: const TextStyle(fontSize: 10, color: AppColors.muted),
+      ),
     );
   }
 
@@ -190,67 +221,35 @@ class _ReportItemScreenState extends State<ReportItemScreen> {
   }
 
   Widget _buildLocationField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('Campus Location / Building *', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-            Text('📍 Quad 2', style: TextStyle(fontSize: 10, color: AppColors.primary, fontWeight: FontWeight.w600)),
-          ],
-        ),
-        const SizedBox(height: 6),
-        TextFormField(
-          controller: _locationController,
-          style: const TextStyle(fontSize: 13),
-          decoration: const InputDecoration(
-            hintText: 'e.g. Student Union Lounge, 1st Floor',
-            prefixIcon: Icon(Icons.location_on_outlined, size: 18, color: AppColors.muted),
-            helperText: 'Specify room number, lounge corner, or nearby landmark',
-            helperStyle: TextStyle(fontSize: 10, color: AppColors.muted),
-          ),
-        ),
-      ],
+    return ReportTextField(
+      label: 'Campus Location / Building *',
+      hint: 'e.g. Student Union Lounge, 1st Floor',
+      helperText: 'Specify room number, lounge corner, or nearby landmark',
+      prefixIcon: Icons.location_on_outlined,
+      controller: _locationController,
+      trailing: const Text(
+        '📍 Quad 2',
+        style: TextStyle(fontSize: 10, color: AppColors.primary, fontWeight: FontWeight.w600),
+      ),
     );
   }
 
   Widget _buildDateField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Date & Estimated Time *', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 6),
-        TextFormField(
-          controller: _dateController,
-          style: const TextStyle(fontSize: 13),
-          decoration: const InputDecoration(
-            hintText: 'e.g. Today, May 14 • 11:30 AM',
-            prefixIcon: Icon(Icons.calendar_today_outlined, size: 16, color: AppColors.muted),
-            suffixIcon: Icon(Icons.access_time_rounded, size: 16, color: AppColors.muted),
-          ),
-        ),
-      ],
+    return ReportTextField(
+      label: 'Date & Estimated Time *',
+      hint: 'e.g. Today, May 14 • 11:30 AM',
+      prefixIcon: Icons.calendar_today_outlined,
+      controller: _dateController,
     );
   }
 
   Widget _buildDescriptionField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Detailed Description', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 6),
-        TextFormField(
-          controller: _descController,
-          maxLines: 3,
-          style: const TextStyle(fontSize: 13),
-          decoration: const InputDecoration(
-            hintText: 'Describe condition, distinguishing marks, stickers...',
-            helperText: 'Tip: Keep a small hidden detail private to verify the true owner!',
-            helperStyle: TextStyle(fontSize: 10, color: AppColors.muted),
-          ),
-        ),
-      ],
+    return ReportTextField(
+      label: 'Detailed Description',
+      hint: 'Describe condition, distinguishing marks, stickers...',
+      helperText: 'Tip: Keep a small hidden detail private to verify the true owner!',
+      controller: _descController,
+      maxLines: 3,
     );
   }
 }

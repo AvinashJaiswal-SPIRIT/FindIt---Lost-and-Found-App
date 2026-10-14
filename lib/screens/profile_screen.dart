@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
+import '../data/sample_items.dart';
 import '../widgets/app_header.dart';
 import '../widgets/bottom_nav_bar.dart';
 import '../widgets/profile_setting_tile.dart';
@@ -55,7 +57,24 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  int get _totalReports => sampleItems.length;
+  int get _lostCount =>
+      sampleItems.where((i) => i.type.toLowerCase() == 'lost').length;
+  int get _reunitedCount => sampleItems
+      .where((i) =>
+          i.status.toLowerCase() == 'returned' ||
+          i.status.toLowerCase() == 'resolved')
+      .length;
+
   Widget _buildUserProfileCard() {
+    final user = FirebaseAuth.instance.currentUser;
+    final displayName = (user?.displayName != null && user!.displayName!.trim().isNotEmpty)
+        ? user.displayName!.trim()
+        : (user?.email != null && user!.email!.contains('@')
+            ? user.email!.split('@')[0]
+            : 'Campus Member');
+    final email = user?.email ?? 'student@campus.edu';
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -65,83 +84,62 @@ class ProfileScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Stack(
-            children: [
-              const CircleAvatar(
-                radius: 36,
-                backgroundImage: AssetImage("assets/images/avtar.jpg")
-              ),
-              Positioned(
-                bottom: 2,
-                right: 2,
-                child: Container(
-                  width: 14,
-                  height: 14,
-                  decoration: BoxDecoration(
-                    color: AppColors.green,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
+          Center(
+            child: SizedBox(
+              width: 72,
+              height: 72,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  const CircleAvatar(
+                    radius: 36,
+                    backgroundImage: AssetImage("assets/images/avtar.jpg"),
                   ),
-                ),
+                  Positioned(
+                    bottom: 2,
+                    right: 2,
+                    child: Container(
+                      width: 16,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: AppColors.green,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2.5),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
           const SizedBox(height: 10),
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Avi',
-                style: TextStyle(
+                displayName,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: AppColors.text,
                 ),
               ),
-              SizedBox(width: 4),
-              Icon(Icons.verified, size: 16, color: AppColors.primary),
+              const SizedBox(width: 4),
+              const Icon(Icons.verified, size: 16, color: AppColors.primary),
             ],
           ),
           const SizedBox(height: 2),
-          const Text(
-            'avi@campus.edu',
-            style: TextStyle(fontSize: 12, color: AppColors.muted),
+          Text(
+            email,
+            style: const TextStyle(fontSize: 12, color: AppColors.muted),
           ),
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: AppColors.borderLight,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: const Text(
-                  'Senior • Class of 2025',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.muted,
-                  ),
-                ),
-              ),
+              _buildBadge('Senior • Class of 2025', AppColors.borderLight, AppColors.muted),
               const SizedBox(width: 6),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: AppColors.greenLight,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: const Text(
-                  '✓ Verified Campus Member',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.green,
-                  ),
-                ),
-              ),
+              _buildBadge('✓ Verified Campus Member', AppColors.greenLight, AppColors.green),
             ],
           ),
         ],
@@ -156,14 +154,14 @@ class ProfileScreen extends StatelessWidget {
         color: AppColors.amberLight,
         borderRadius: BorderRadius.circular(14),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.emoji_events_rounded, color: AppColors.amber, size: 20),
-          SizedBox(width: 8),
+          const Icon(Icons.emoji_events_rounded, color: AppColors.amber, size: 20),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
-              "Campus Hero Level 2: You've reunited items for 5 fellow students this semester!",
-              style: TextStyle(
+              "Campus Hero: You've reunited $_reunitedCount items for fellow students this semester!",
+              style: const TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF92400E),
@@ -176,28 +174,31 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildStatsRow() {
-    return const Row(
+    final resolvePercent =
+        _totalReports > 0 ? ((_reunitedCount / _totalReports) * 100).round() : 0;
+
+    return Row(
       children: [
         ProfileStatCard(
-          value: '8',
+          value: '$_totalReports',
           label: 'Total Reports',
           icon: Icons.assignment_outlined,
           iconColor: AppColors.primary,
         ),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         ProfileStatCard(
-          value: '3',
+          value: '$_lostCount',
           label: 'Lost Items',
           icon: Icons.search_rounded,
           iconColor: AppColors.red,
         ),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         ProfileStatCard(
-          value: '5',
+          value: '$_reunitedCount',
           label: 'Reunited',
           icon: Icons.card_giftcard_rounded,
           iconColor: AppColors.green,
-          extraBadge: '62% resolved',
+          extraBadge: '$resolvePercent% resolved',
         ),
       ],
     );
@@ -216,65 +217,43 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildSettingsList(BuildContext context) {
+    final settings = [
+      {'icon': Icons.badge_outlined, 'title': 'Campus Affiliation & Student ID', 'sub': 'ID: •••• 8842 (Engineering Quad)', 'color': AppColors.blue},
+      {'icon': Icons.notifications_none_rounded, 'title': 'Notification Preferences', 'sub': 'In-app alerts, daily email digest', 'color': AppColors.primary},
+      {'icon': Icons.shield_outlined, 'title': 'Campus Safety & Contact Privacy', 'sub': 'Masked campus chat, anonymous claims', 'color': AppColors.blue},
+      {'icon': Icons.home_work_outlined, 'title': 'Lost & Found Drop-off Centers', 'sub': 'Campus Police, Main Library, Union Desk', 'color': AppColors.amber},
+      {'icon': Icons.help_outline_rounded, 'title': 'Help & Campus Guidelines', 'sub': 'Ownership verification FAQs & honor code', 'color': AppColors.primary},
+    ];
+
     return Column(
-      children: [
-        ProfileSettingTile(
-          icon: Icons.badge_outlined,
-          title: 'Campus Affiliation & Student ID',
-          subtitle: 'ID: •••• 8842 (Engineering Quad)',
-          iconColor: AppColors.blue,
-          onTap: () {},
-        ),
-        ProfileSettingTile(
-          icon: Icons.notifications_none_rounded,
-          title: 'Notification Preferences',
-          subtitle: 'In-app alerts, daily email digest',
-          iconColor: AppColors.primary,
-          onTap: () {},
-        ),
-        ProfileSettingTile(
-          icon: Icons.shield_outlined,
-          title: 'Campus Safety & Contact Privacy',
-          subtitle: 'Masked campus chat, anonymous claims',
-          iconColor: AppColors.blue,
-          onTap: () {},
-        ),
-        ProfileSettingTile(
-          icon: Icons.home_work_outlined,
-          title: 'Lost & Found Drop-off Centers',
-          subtitle: 'Campus Police, Main Library, Union Desk',
-          iconColor: AppColors.amber,
-          onTap: () {},
-        ),
-        ProfileSettingTile(
-          icon: Icons.help_outline_rounded,
-          title: 'Help & Campus Guidelines',
-          subtitle: 'Ownership verification FAQs & honor code',
-          iconColor: AppColors.primary,
-          onTap: () {},
-        ),
-      ],
+      children: settings.map((s) => ProfileSettingTile(
+        icon: s['icon'] as IconData,
+        title: s['title'] as String,
+        subtitle: s['sub'] as String,
+        iconColor: s['color'] as Color,
+        onTap: () {},
+      )).toList(),
+    );
+  }
+
+  Widget _buildBadge(String text, Color bg, Color textCol) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(6)),
+      child: Text(text, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: textCol)),
     );
   }
 
   Widget _buildLogoutButton(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: AppColors.redLight,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      decoration: BoxDecoration(color: AppColors.redLight, borderRadius: BorderRadius.circular(12)),
       child: ListTile(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         leading: const Icon(Icons.logout_rounded, color: AppColors.red, size: 20),
-        title: const Text(
-          'Log Out',
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.bold,
-            color: AppColors.red,
-          ),
-        ),
-        onTap: () {
+        title: const Text('Log Out', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.red)),
+        onTap: () async {
+          await FirebaseAuth.instance.signOut();
+          if (!context.mounted) return;
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (_) => const LoginScreen()),
@@ -288,15 +267,9 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildFooterText() {
     return const Column(
       children: [
-        Text(
-          'FindIt v1.4.0 • Built for Campus Community',
-          style: TextStyle(fontSize: 10, color: AppColors.muted),
-        ),
+        Text('FindIt v1.4.0 • Built for Campus Community', style: TextStyle(fontSize: 10, color: AppColors.muted)),
         SizedBox(height: 2),
-        Text(
-          'Safe Recovery • Peer Honor Code Enabled',
-          style: TextStyle(fontSize: 10, color: AppColors.muted),
-        ),
+        Text('Safe Recovery • Peer Honor Code Enabled', style: TextStyle(fontSize: 10, color: AppColors.muted)),
       ],
     );
   }

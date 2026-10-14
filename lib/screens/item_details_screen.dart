@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
+import '../data/sample_items.dart';
 import '../models/item_model.dart';
 import '../widgets/app_header.dart';
 import '../widgets/hero_image_carousel.dart';
@@ -9,6 +10,7 @@ import '../widgets/primary_button.dart';
 import '../widgets/recovery_location_card.dart';
 import '../widgets/reporter_profile_card.dart';
 import '../widgets/status_badge.dart';
+import 'report_item_screen.dart';
 
 class ItemDetailsScreen extends StatelessWidget {
   final ItemModel item;
@@ -64,9 +66,42 @@ class ItemDetailsScreen extends StatelessWidget {
             const PickupCoordinatesCard(),
             const SizedBox(height: 16),
             ListingControlsCard(
-              onEdit: () {},
-              onResolved: () {},
-              onRemove: () {},
+              onEdit: () async {
+                final updated = await Navigator.push<bool>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ReportItemScreen(itemToEdit: item),
+                  ),
+                );
+                if (updated == true && context.mounted) {
+                  Navigator.pop(context, true);
+                }
+              },
+              onResolved: () {
+                final index = sampleItems.indexWhere((i) => i.id == item.id);
+                if (index != -1) {
+                  sampleItems[index] = item.copyWith(status: 'Returned');
+                }
+                ScaffoldMessenger.of(context).clearSnackBars();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    duration: const Duration(seconds: 5),
+                    content: Text('Marked "${item.title}" as returned!'),
+                  ),
+                );
+                Navigator.pop(context, true);
+              },
+              onRemove: () {
+                sampleItems.removeWhere((i) => i.id == item.id);
+                ScaffoldMessenger.of(context).clearSnackBars();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    duration: const Duration(seconds: 5),
+                    content: Text('Removed "${item.title}" from listings'),
+                  ),
+                );
+                Navigator.pop(context, true);
+              },
             ),
             const SizedBox(height: 80),
           ],
@@ -88,7 +123,11 @@ class ItemDetailsScreen extends StatelessWidget {
             color: AppColors.text,
           ),
         ),
-        StatusBadge(label: '${item.type.toUpperCase()} ITEM'),
+        StatusBadge(
+          label: item.status == 'Returned'
+              ? 'RETURNED'
+              : '${item.type.toUpperCase()} ITEM',
+        ),
       ],
     );
   }

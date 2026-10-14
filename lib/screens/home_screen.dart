@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 import '../data/sample_items.dart';
@@ -6,6 +7,8 @@ import '../widgets/app_header.dart';
 import '../widgets/app_search_bar.dart';
 import '../widgets/bottom_nav_bar.dart';
 import '../widgets/category_chip.dart';
+import '../widgets/empty_state.dart';
+import '../widgets/home_greeting.dart';
 import '../widgets/item_card.dart';
 import '../widgets/recovery_banner.dart';
 import 'item_details_screen.dart';
@@ -25,7 +28,26 @@ class _HomeScreenState extends State<HomeScreen> {
   String _categoryFilter = 'All';
   String _searchQuery = '';
 
-  final List<String> _typeFilters = ['All Items (24)', 'Lost (14)', 'Found (10)'];
+  String get _userName {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user?.displayName != null && user!.displayName!.trim().isNotEmpty) {
+      return user.displayName!.trim();
+    }
+    if (user?.email != null && user!.email!.contains('@')) {
+      final prefix = user.email!.split('@')[0];
+      if (prefix.isNotEmpty) {
+        return prefix[0].toUpperCase() + prefix.substring(1);
+      }
+    }
+    return 'Avi';
+  }
+
+  int get _totalCount => sampleItems.length;
+  int get _lostCount =>
+      sampleItems.where((i) => i.type.toLowerCase() == 'lost').length;
+  int get _foundCount =>
+      sampleItems.where((i) => i.type.toLowerCase() == 'found').length;
+
   final List<Map<String, dynamic>> _categories = [
     {'name': 'Electronics', 'icon': Icons.laptop_mac_rounded},
     {'name': 'ID & Cards', 'icon': Icons.badge_outlined},
@@ -60,11 +82,14 @@ class _HomeScreenState extends State<HomeScreen> {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         children: [
-          _buildGreetingSection(),
+          HomeGreeting(
+            userName: _userName,
+            reportedCount: _totalCount,
+          ),
           const SizedBox(height: 16),
           AppSearchBar(
             onChanged: (q) => setState(() => _searchQuery = q),
-            onFilterTap: () {},
+            onFilterTap: _openFilterModal,
           ),
           const SizedBox(height: 14),
           _buildTypeFilterRow(),
@@ -78,11 +103,12 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          await Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const ReportItemScreen()),
           );
+          setState(() {});
         },
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
@@ -94,73 +120,42 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       bottomNavigationBar: BottomNavBar(
         currentIndex: 0,
-        onTap: (index) {
+        onTap: (index) async {
           final target = index == 1 ? const ListingsScreen() : const ProfileScreen();
           if (index == 1 || index == 2) {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => target));
+            await Navigator.push(context, MaterialPageRoute(builder: (_) => target));
+            setState(() {});
           }
         },
       ),
     );
   }
 
-  Widget _buildGreetingSection() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Hi Avi 👋',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: AppColors.text,
-              ),
-            ),
-            SizedBox(height: 2),
-            Text(
-              '3 new items reported around campus today',
-              style: TextStyle(fontSize: 12, color: AppColors.muted),
-            ),
-          ],
-        ),
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: AppColors.primaryLight,
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(
-            Icons.explore_outlined,
-            color: AppColors.primary,
-            size: 22,
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _buildTypeFilterRow() {
+    final filters = [
+      {'key': 'All', 'label': 'All Items ($_totalCount)'},
+      {'key': 'Lost', 'label': 'Lost ($_lostCount)'},
+      {'key': 'Found', 'label': 'Found ($_foundCount)'},
+    ];
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        children: _typeFilters.map((filter) {
-          final isSelected = (_typeFilter == 'All' && filter.startsWith('All')) ||
-              (_typeFilter == 'Lost' && filter.startsWith('Lost')) ||
-              (_typeFilter == 'Found' && filter.startsWith('Found'));
+        children: filters.map((filter) {
+          final key = filter['key']!;
+          final isSelected = (_typeFilter == 'All' && key == 'All') ||
+              (_typeFilter.contains('Lost') && key == 'Lost') ||
+              (_typeFilter.contains('Found') && key == 'Found');
 
           return Padding(
             padding: const EdgeInsets.only(right: 8),
             child: CategoryChip(
-              label: filter,
+              label: filter['label']!,
               isSelected: isSelected,
               onTap: () {
                 setState(() {
-                  if (filter.startsWith('All')) _typeFilter = 'All';
-                  if (filter.startsWith('Lost')) _typeFilter = 'Lost';
-                  if (filter.startsWith('Found')) _typeFilter = 'Found';
+                  _typeFilter = key;
                 });
               },
             ),
@@ -196,39 +191,82 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _openFilterModal() {
+    showModalBottomSheet(
+      context: context,
+      useSafeArea: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => SafeArea(
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Filter by Type',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              ...[
+                {'title': 'All Items', 'key': 'All', 'count': _totalCount},
+                {'title': 'Lost Only', 'key': 'Lost', 'count': _lostCount},
+                {'title': 'Found Only', 'key': 'Found', 'count': _foundCount},
+              ].map((opt) {
+                final key = opt['key'] as String;
+                final isSelected = (_typeFilter == 'All' && key == 'All') ||
+                    (_typeFilter.contains('Lost') && key == 'Lost') ||
+                    (_typeFilter.contains('Found') && key == 'Found');
+                return ListTile(
+                  title: Text('${opt['title']} (${opt['count']})'),
+                  trailing: isSelected
+                      ? const Icon(Icons.check, color: AppColors.primary)
+                      : null,
+                  onTap: () {
+                    setState(() => _typeFilter = key);
+                    Navigator.pop(context);
+                  },
+                );
+              }),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   List<Widget> _buildItemsList() {
     final items = _filteredItems;
     if (items.isEmpty) {
       return [
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 24),
-          child: Center(
-            child: Text(
-              'No items match your search or filter.',
-              style: TextStyle(color: AppColors.muted, fontSize: 13),
-            ),
-          ),
+        EmptyState(
+          title: 'No matching items',
+          subtitle: 'Try adjusting your search query or category filters.',
+          buttonText: 'Reset Filters',
+          onButtonTap: () {
+            setState(() {
+              _searchQuery = '';
+              _typeFilter = 'All';
+              _categoryFilter = 'All';
+            });
+          },
         ),
       ];
     }
 
-    return items
-        .map(
-          (item) => Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: ItemCard(
-              item: item,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => ItemDetailsScreen(item: item),
-                  ),
-                );
-              },
-            ),
-          ),
-        )
-        .toList();
+    return items.map((item) => Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: ItemCard(
+        item: item,
+        onTap: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => ItemDetailsScreen(item: item)),
+          );
+          setState(() {});
+        },
+      ),
+    )).toList();
   }
 }

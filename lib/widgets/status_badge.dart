@@ -14,24 +14,24 @@ class StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final clean = label.toUpperCase();
-    final isLost = clean.contains('LOST');
-    final isFound = clean.contains('FOUND');
     final isReturned = clean.contains('RETURN') || clean.contains('RESOLV');
+    final isLost = !isReturned && clean.contains('LOST');
+    final isFound = !isReturned && clean.contains('FOUND');
 
-    final Color bgColor = isLost
-        ? AppColors.redLight
-        : isFound
-            ? AppColors.blueLight
-            : isReturned
-                ? AppColors.greenLight
+    final Color bgColor = isReturned
+        ? AppColors.greenLight
+        : isLost
+            ? AppColors.redLight
+            : isFound
+                ? AppColors.blueLight
                 : AppColors.primaryLight;
 
-    final Color textColor = isLost
-        ? AppColors.red
-        : isFound
-            ? AppColors.blue
-            : isReturned
-                ? AppColors.green
+    final Color textColor = isReturned
+        ? AppColors.green
+        : isLost
+            ? AppColors.red
+            : isFound
+                ? AppColors.blue
                 : AppColors.primary;
 
     return Container(

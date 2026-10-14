@@ -33,13 +33,17 @@ class _SignupScreenState extends State<SignupScreen> {
 
   void _handleSignup() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
+    final name = _nameController.text.trim();
     final mail = _emailController.text.trim();
     final pass = _passwordController.text.trim();
 
     try {
       await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: mail, password: pass)
-          .then((value) {
+          .then((value) async {
+        if (name.isNotEmpty) {
+          await value.user?.updateDisplayName(name);
+        }
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Account Created")),

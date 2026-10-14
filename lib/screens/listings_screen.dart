@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 import '../data/sample_items.dart';
@@ -6,6 +7,7 @@ import '../widgets/app_header.dart';
 import '../widgets/bottom_nav_bar.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/item_card.dart';
+import '../widgets/listings_header.dart';
 import 'home_screen.dart';
 import 'item_details_screen.dart';
 import 'profile_screen.dart';
@@ -20,20 +22,202 @@ class ListingsScreen extends StatefulWidget {
 
 class _ListingsScreenState extends State<ListingsScreen> {
   String _activeTab = 'Active';
+  Timer? _snackBarTimer;
+
+  @override
+  void dispose() {
+    _snackBarTimer?.cancel();
+    super.dispose();
+  }
 
   List<ItemModel> get _userItems {
     return sampleItems.where((item) {
       if (_activeTab == 'Active') {
-        return item.userId == 'user1' && item.status == 'Active';
+        return item.status == 'Active';
       } else {
-        return item.status != 'Active' || item.userId == 'user1';
+        return item.status != 'Active';
       }
     }).toList();
   }
 
   void _markAsReturned(ItemModel item) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Marked "${item.title}" as returned!')),
+    final isCurrentlyReturned = item.status == 'Returned';
+    final updatedStatus = isCurrentlyReturned ? 'Active' : 'Returned';
+
+    setState(() {
+      final index = sampleItems.indexWhere((i) => i.id == item.id);
+      if (index != -1) {
+        sampleItems[index] = item.copyWith(status: updatedStatus);
+      }
+    });
+
+    _snackBarTimer?.cancel();
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.clearSnackBars();
+    messenger.showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 5),
+        content: Text(
+          isCurrentlyReturned
+              ? 'Marked "${item.title}" as active!'
+              : 'Marked "${item.title}" as returned!',
+        ),
+        action: SnackBarAction(
+          label: 'UNDO',
+          textColor: AppColors.primaryLight,
+          onPressed: () {
+            _snackBarTimer?.cancel();
+            messenger.hideCurrentSnackBar();
+            setState(() {
+              final index = sampleItems.indexWhere((i) => i.id == item.id);
+              if (index != -1) {
+                sampleItems[index] = item.copyWith(
+                  status: isCurrentlyReturned ? 'Returned' : 'Active',
+                );
+              }
+            });
+          },
+        ),
+      ),
+    );
+
+    _snackBarTimer = Timer(const Duration(seconds: 5), () {
+      if (mounted) {
+        messenger.hideCurrentSnackBar();
+      }
+    });
+  }
+
+  void _editItem(ItemModel item) async {
+    final updated = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ReportItemScreen(itemToEdit: item),
+      ),
+    );
+    if (updated == true && mounted) {
+      setState(() {});
+    }
+  }
+
+  void _createNewListing() async {
+    final created = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const ReportItemScreen(),
+      ),
+    );
+    if (created == true && mounted) {
+      setState(() {});
+    }
+  }
+
+  void _showItemActions(ItemModel item) {
+    showModalBottomSheet(
+      context: context,
+      useSafeArea: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => SafeArea(
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.edit_outlined),
+                title: const Text('Edit Listing'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _editItem(item);
+                },
+              ),
+              ListTile(
+                leading: Icon(
+                  item.status == 'Returned' ? Icons.replay_rounded : Icons.check_circle_outline,
+                  color: AppColors.green,
+                ),
+                title: Text(item.status == 'Returned' ? 'Mark as Active' : 'Mark as Returned'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _markAsReturned(item);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete_outline, color: AppColors.red),
+                title: const Text('Remove Listing', style: TextStyle(color: AppColors.red)),
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() => sampleItems.removeWhere((i) => i.id == item.id));
+                  _snackBarTimer?.cancel();
+                  final messenger = ScaffoldMessenger.of(context);
+                  messenger.clearSnackBars();
+                  messenger.showSnackBar(
+                    SnackBar(
+                      duration: const Duration(seconds: 5),
+                      content: Text('Removed "${item.title}"'),
+                    ),
+                  );
+                  _snackBarTimer = Timer(const Duration(seconds: 5), () {
+                    if (mounted) messenger.hideCurrentSnackBar();
+                  });
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showSortSheet() {
+    showModalBottomSheet(
+      context: context,
+      useSafeArea: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => SafeArea(
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Sort Listings',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              ListTile(
+                leading: const Icon(Icons.access_time_rounded),
+                title: const Text('Most Recent First'),
+                onTap: () {
+                  setState(() => sampleItems.sort((a, b) => b.id.compareTo(a.id)));
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.sort_by_alpha_rounded),
+                title: const Text('Alphabetical (A-Z)'),
+                onTap: () {
+                  setState(() => sampleItems.sort((a, b) => a.title.compareTo(b.title)));
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.history_rounded),
+                title: const Text('Oldest First'),
+                onTap: () {
+                  setState(() => sampleItems.sort((a, b) => a.id.compareTo(b.id)));
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -50,163 +234,59 @@ class _ListingsScreenState extends State<ListingsScreen> {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         children: [
-          _buildCampusPostsHeader(),
+          ListingsHeader(
+            totalCount: sampleItems.length,
+            activeTab: _activeTab,
+            activeCount: sampleItems.where((i) => i.status == 'Active').length,
+            returnedCount: sampleItems.where((i) => i.status != 'Active').length,
+            onTabChanged: (tab) => setState(() => _activeTab = tab),
+            onSortTap: _showSortSheet,
+            onFilterTap: _showSortSheet,
+          ),
           const SizedBox(height: 14),
-          _buildTabsRow(),
-          const SizedBox(height: 14),
-          ...items.map(
-            (item) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: ItemCard(
-                item: item,
-                isListingView: true,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => ItemDetailsScreen(item: item),
-                    ),
-                  );
-                },
-                onEdit: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const ReportItemScreen(),
-                    ),
-                  );
-                },
-                onMarkReturned: () => _markAsReturned(item),
-                onMore: () {},
+          if (items.isEmpty)
+            EmptyState(
+              title: _activeTab == 'Active' ? 'No active listings' : 'No returned listings',
+              subtitle: _activeTab == 'Active'
+                  ? 'All caught up! Found something lost or missing your own essentials on campus?'
+                  : 'Items you mark as returned will appear here.',
+              onButtonTap: _createNewListing,
+            )
+          else
+            ...items.map(
+              (item) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: ItemCard(
+                  item: item,
+                  isListingView: true,
+                  onTap: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ItemDetailsScreen(item: item),
+                      ),
+                    );
+                    setState(() {});
+                  },
+                  onEdit: () => _editItem(item),
+                  onMarkReturned: () => _markAsReturned(item),
+                  onMore: () => _showItemActions(item),
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 12),
-          EmptyState(
-            onButtonTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const ReportItemScreen(),
-                ),
-              );
-            },
-          ),
           const SizedBox(height: 20),
         ],
       ),
       bottomNavigationBar: BottomNavBar(
         currentIndex: 1,
         onTap: (index) {
+          _snackBarTimer?.cancel();
+          ScaffoldMessenger.of(context).clearSnackBars();
           final target = index == 0 ? const HomeScreen() : const ProfileScreen();
           if (index == 0 || index == 2) {
             Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => target));
           }
         },
-      ),
-    );
-  }
-
-  Widget _buildCampusPostsHeader() {
-    return Row(
-      children: [
-        const Text(
-          'Campus Posts',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: AppColors.text,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-          decoration: BoxDecoration(
-            color: AppColors.primaryLight,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: const Text(
-            '8 Total',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              color: AppColors.primary,
-            ),
-          ),
-        ),
-        const Spacer(),
-        IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.swap_vert_rounded, color: AppColors.muted, size: 20),
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(),
-        ),
-        const SizedBox(width: 12),
-        IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.tune_rounded, color: AppColors.muted, size: 20),
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTabsRow() {
-    return Row(
-      children: [
-        _buildTabPill('Active', '3', _activeTab == 'Active'),
-        const SizedBox(width: 10),
-        _buildTabPill('Returned & Resolved', '1', _activeTab != 'Active'),
-      ],
-    );
-  }
-
-  Widget _buildTabPill(String title, String count, bool isSelected) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => setState(() => _activeTab = title),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 10),
-          decoration: BoxDecoration(
-            color: isSelected ? AppColors.primary : Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isSelected ? AppColors.primary : AppColors.border,
-            ),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: isSelected ? Colors.white : AppColors.text,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? Colors.white.withValues(alpha: 0.25)
-                      : AppColors.borderLight,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  count,
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: isSelected ? Colors.white : AppColors.muted,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

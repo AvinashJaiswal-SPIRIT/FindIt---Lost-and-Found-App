@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
+import '../screens/profile_screen.dart';
 import 'app_logo.dart';
 
 class AppHeader extends StatelessWidget implements PreferredSizeWidget {
@@ -10,6 +11,7 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onBack;
   final List<Widget>? actions;
   final bool showNotificationsAndAvatar;
+  final VoidCallback? onProfileTap;
 
   const AppHeader({
     super.key,
@@ -20,6 +22,7 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
     this.onBack,
     this.actions,
     this.showNotificationsAndAvatar = false,
+    this.onProfileTap,
   });
 
   @override
@@ -100,13 +103,22 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
                       ),
                     ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 16, left: 4),
-                    child: CircleAvatar(
-                      radius: 17,
-                      backgroundColor: AppColors.primaryLight,
-                      backgroundImage: const AssetImage(
-                        'assets/images/avtar.jpg',
+                  GestureDetector(
+                    onTap: onProfileTap ??
+                        () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const ProfileScreen(),
+                              ),
+                            ),
+                    child: const Padding(
+                      padding: EdgeInsets.only(right: 16, left: 4),
+                      child: CircleAvatar(
+                        radius: 17,
+                        backgroundColor: AppColors.primaryLight,
+                        backgroundImage: AssetImage(
+                          'assets/images/avtar.jpg',
+                        ),
                       ),
                     ),
                   ),

@@ -67,7 +67,11 @@ class ItemCard extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            StatusBadge(label: item.type),
+                            StatusBadge(
+                              label: item.status == 'Returned'
+                                  ? 'Returned'
+                                  : item.type,
+                            ),
                             const SizedBox(width: 6),
                             const Icon(
                               Icons.access_time_rounded,
@@ -170,13 +174,22 @@ class ItemCard extends StatelessWidget {
                       flex: 2,
                       child: ElevatedButton.icon(
                         onPressed: onMarkReturned,
-                        icon: const Icon(Icons.check_circle_outline, size: 14),
-                        label: const Text(
-                          'Mark as Returned',
-                          style: TextStyle(fontSize: 12),
+                        icon: Icon(
+                          item.status == 'Returned'
+                              ? Icons.replay_rounded
+                              : Icons.check_circle_outline,
+                          size: 14,
+                        ),
+                        label: Text(
+                          item.status == 'Returned'
+                              ? 'Mark as Active'
+                              : 'Mark as Returned',
+                          style: const TextStyle(fontSize: 12),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.green,
+                          backgroundColor: item.status == 'Returned'
+                              ? AppColors.primary
+                              : AppColors.green,
                           foregroundColor: Colors.white,
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(vertical: 8),

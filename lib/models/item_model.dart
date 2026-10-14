@@ -34,4 +34,40 @@ class ItemModel {
     this.isSafeHandOff = true,
     this.contactEmail = 'contact@campus.edu',
   });
+
+  ItemModel copyWith({
+    String? id,
+    String? userId,
+    String? title,
+    String? description,
+    String? category,
+    String? location,
+    String? timeAgo,
+    String? type,
+    String? status,
+    String? imageUrl,
+    String? reportedBy,
+    String? reportedByRole,
+    String? recoveryLocation,
+    bool? isSafeHandOff,
+    String? contactEmail,
+  }) {
+    return ItemModel(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      category: category ?? this.category,
+      location: location ?? this.location,
+      timeAgo: timeAgo ?? this.timeAgo,
+      type: type ?? this.type,
+      status: status ?? this.status,
+      imageUrl: imageUrl ?? this.imageUrl,
+      reportedBy: reportedBy ?? this.reportedBy,
+      reportedByRole: reportedByRole ?? this.reportedByRole,
+      recoveryLocation: recoveryLocation ?? this.recoveryLocation,
+      isSafeHandOff: isSafeHandOff ?? this.isSafeHandOff,
+      contactEmail: contactEmail ?? this.contactEmail,
+    );
+  }
 }
