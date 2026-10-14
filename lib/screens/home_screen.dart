@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../core/app_colors.dart';
 import '../data/sample_items.dart';
 import '../models/item_model.dart';
@@ -17,14 +18,15 @@ import 'profile_screen.dart';
 import 'report_item_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final String initialTypeFilter;
+  const HomeScreen({super.key, this.initialTypeFilter = 'All'});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String _typeFilter = 'All';
+  late String _typeFilter = widget.initialTypeFilter;
   String _categoryFilter = 'All';
   String _searchQuery = '';
 
@@ -73,7 +75,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) SystemNavigator.pop();
+      },
+      child: Scaffold(
       backgroundColor: AppColors.background,
       appBar: const AppHeader(
         subtitle: 'Home',
@@ -128,7 +135,8 @@ class _HomeScreenState extends State<HomeScreen> {
           }
         },
       ),
-    );
+    ),
+  );
   }
 
 

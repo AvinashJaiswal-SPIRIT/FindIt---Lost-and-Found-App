@@ -62,8 +62,10 @@ class ItemDetailsScreen extends StatelessWidget {
               name: item.reportedBy,
               role: item.reportedByRole,
             ),
-            const SizedBox(height: 16),
-            const PickupCoordinatesCard(),
+            if (item.isSafeHandOff) ...[
+              const SizedBox(height: 16),
+              const PickupCoordinatesCard(),
+            ],
             const SizedBox(height: 16),
             ListingControlsCard(
               onEdit: () async {

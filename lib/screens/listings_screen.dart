@@ -14,14 +14,15 @@ import 'profile_screen.dart';
 import 'report_item_screen.dart';
 
 class ListingsScreen extends StatefulWidget {
-  const ListingsScreen({super.key});
+  final String initialTab;
+  const ListingsScreen({super.key, this.initialTab = 'Active'});
 
   @override
   State<ListingsScreen> createState() => _ListingsScreenState();
 }
 
 class _ListingsScreenState extends State<ListingsScreen> {
-  String _activeTab = 'Active';
+  late String _activeTab = widget.initialTab;
   Timer? _snackBarTimer;
 
   @override
@@ -282,9 +283,12 @@ class _ListingsScreenState extends State<ListingsScreen> {
         onTap: (index) {
           _snackBarTimer?.cancel();
           ScaffoldMessenger.of(context).clearSnackBars();
-          final target = index == 0 ? const HomeScreen() : const ProfileScreen();
-          if (index == 0 || index == 2) {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => target));
+          if (index == 0) {
+            Navigator.pushAndRemoveUntil(context,
+                MaterialPageRoute(builder: (_) => const HomeScreen()), (r) => false);
+          } else if (index == 2) {
+            Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (_) => const ProfileScreen()));
           }
         },
       ),

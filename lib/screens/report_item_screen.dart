@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../core/app_colors.dart';
 import '../data/sample_items.dart';
 import '../models/item_model.dart';
@@ -28,6 +29,7 @@ class _ReportItemScreenState extends State<ReportItemScreen> {
   final _dateController = TextEditingController();
   final _descController = TextEditingController();
   bool _safeHandOff = false;
+  String? _selectedImagePath;
 
   final List<String> _categories = [
     'Electronics & Audio',
@@ -49,6 +51,9 @@ class _ReportItemScreenState extends State<ReportItemScreen> {
       _category = _categories.contains(item.category) ? item.category : _categories.first;
       _itemType = item.type;
       _safeHandOff = item.isSafeHandOff;
+      if (item.imageUrl.isNotEmpty) {
+        _selectedImagePath = item.imageUrl;
+      }
     }
   }
 
@@ -61,8 +66,31 @@ class _ReportItemScreenState extends State<ReportItemScreen> {
     super.dispose();
   }
 
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(source: source);
+      if (picked != null) {
+        setState(() => _selectedImagePath = picked.path);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            duration: const Duration(seconds: 4),
+            content: Text('Could not access image: $e'),
+          ),
+        );
+      }
+    }
+  }
+
   void _submitReport() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
+    final resolvedImageUrl = (_selectedImagePath != null && _selectedImagePath!.isNotEmpty)
+        ? _selectedImagePath!
+        : 'assets/images/report_image.jpg';
+
     if (widget.itemToEdit != null) {
       final index = sampleItems.indexWhere((i) => i.id == widget.itemToEdit!.id);
       if (index != -1) {
@@ -73,6 +101,7 @@ class _ReportItemScreenState extends State<ReportItemScreen> {
           location: _locationController.text.trim(),
           type: _itemType,
           isSafeHandOff: _safeHandOff,
+          imageUrl: resolvedImageUrl,
         );
       }
       ScaffoldMessenger.of(context).clearSnackBars();
@@ -91,7 +120,7 @@ class _ReportItemScreenState extends State<ReportItemScreen> {
         location: _locationController.text.trim(),
         timeAgo: 'Just now',
         type: _itemType,
-        imageUrl: 'assets/images/report_image.jpg',
+        imageUrl: resolvedImageUrl,
         reportedBy: 'Alex Rivers',
         reportedByRole: 'Senior • Engineering',
         recoveryLocation: 'Student Union Room 104',
@@ -181,8 +210,12 @@ class _ReportItemScreenState extends State<ReportItemScreen> {
             Text('🌟 Recommended', style: TextStyle(fontSize: 10, color: AppColors.green, fontWeight: FontWeight.bold)),
           ],
         ),
-        const SizedBox(height: 8),
-        PhotoUploadBox(onCameraTap: () {}, onGalleryTap: () {}),
+        PhotoUploadBox(
+          selectedImagePath: _selectedImagePath,
+          onCameraTap: () => _pickImage(ImageSource.camera),
+          onGalleryTap: () => _pickImage(ImageSource.gallery),
+          onRemoveTap: () => setState(() => _selectedImagePath = null),
+        ),
       ],
     );
   }

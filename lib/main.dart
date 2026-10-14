@@ -1,8 +1,9 @@
+import 'package:findit/screens/splash.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'core/app_theme.dart';
 import 'firebase_options.dart';
-import 'screens/login_screen.dart';
+
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,7 +31,7 @@ class FindItApp extends StatelessWidget {
       title: 'FindIt',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const LoginScreen(),
+      home: const SplashScreen(),
     );
   }
 }

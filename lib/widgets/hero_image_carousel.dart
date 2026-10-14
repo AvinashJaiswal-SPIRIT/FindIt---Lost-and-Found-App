@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
+import 'item_image_view.dart';
 
 class HeroImageCarousel extends StatelessWidget {
   final String imageUrl;
@@ -28,21 +29,13 @@ class HeroImageCarousel extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(16),
-            child: imageUrl.startsWith('assets/')
-                ? Image.asset(
-                    imageUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => const Center(
-                      child: Icon(Icons.inventory_2_outlined, size: 50, color: AppColors.primary),
-                    ),
-                  )
-                : Image.network(
-                    imageUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => const Center(
-                      child: Icon(Icons.inventory_2_outlined, size: 50, color: AppColors.primary),
-                    ),
-                  ),
+            child: ItemImageView(
+              imagePath: imageUrl,
+              fit: BoxFit.cover,
+              fallback: const Center(
+                child: Icon(Icons.inventory_2_outlined, size: 50, color: AppColors.primary),
+              ),
+            ),
           ),
           Positioned(
             top: 10,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 import '../models/item_model.dart';
+import 'item_image_view.dart';
 import 'status_badge.dart';
 
 class ItemCard extends StatelessWidget {
@@ -45,19 +46,13 @@ class ItemCard extends StatelessWidget {
                       width: 68,
                       height: 68,
                       color: AppColors.background,
-                      child: item.imageUrl.isNotEmpty
-                          ? (item.imageUrl.startsWith('assets/')
-                              ? Image.asset(
-                                  item.imageUrl,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (_, _, _) => _buildFallbackIcon(),
-                                )
-                              : Image.network(
-                                  item.imageUrl,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (_, _, _) => _buildFallbackIcon(),
-                                ))
-                          : _buildFallbackIcon(),
+                      child: ItemImageView(
+                        imagePath: item.imageUrl,
+                        width: 68,
+                        height: 68,
+                        fit: BoxFit.cover,
+                        fallback: _buildFallbackIcon(),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),

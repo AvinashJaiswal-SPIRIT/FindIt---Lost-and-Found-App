@@ -1,18 +1,26 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
+import 'item_image_view.dart';
 
 class PhotoUploadBox extends StatelessWidget {
+  final String? selectedImagePath;
   final VoidCallback onCameraTap;
   final VoidCallback onGalleryTap;
+  final VoidCallback? onRemoveTap;
 
   const PhotoUploadBox({
     super.key,
+    this.selectedImagePath,
     required this.onCameraTap,
     required this.onGalleryTap,
+    this.onRemoveTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final hasUserPhoto = selectedImagePath != null && selectedImagePath!.isNotEmpty;
+    final imageToDisplay = hasUserPhoto ? selectedImagePath! : 'assets/images/report_image.jpg';
+
     return Column(
       children: [
         Container(
@@ -71,17 +79,11 @@ class PhotoUploadBox extends StatelessWidget {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10),
-                  child: Image.asset(
-                    'assets/images/report_image.jpg',
+                  child: ItemImageView(
+                    imagePath: imageToDisplay,
                     width: 64,
                     height: 64,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Container(
-                      width: 64,
-                      height: 64,
-                      color: AppColors.primaryLight,
-                      child: const Icon(Icons.image, color: AppColors.primary),
-                    ),
                   ),
                 ),
                 Positioned(
@@ -90,48 +92,63 @@ class PhotoUploadBox extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                     decoration: BoxDecoration(
-                      color: AppColors.primary,
+                      color: hasUserPhoto ? AppColors.green : AppColors.primary,
                       borderRadius: BorderRadius.circular(4),
                     ),
-                    child: const Text(
-                      'Primary',
-                      style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
+                    child: Text(
+                      hasUserPhoto ? 'Selected' : 'Primary',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 8,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
-                Positioned(
-                  top: 2,
-                  right: 2,
-                  child: Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: const BoxDecoration(
-                      color: Colors.black54,
-                      shape: BoxShape.circle,
+                if (hasUserPhoto && onRemoveTap != null)
+                  Positioned(
+                    top: 2,
+                    right: 2,
+                    child: GestureDetector(
+                      onTap: onRemoveTap,
+                      child: Container(
+                        padding: const EdgeInsets.all(3),
+                        decoration: const BoxDecoration(
+                          color: Colors.black54,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.close, color: Colors.white, size: 10),
+                      ),
                     ),
-                    child: const Icon(Icons.close, color: Colors.white, size: 10),
                   ),
-                ),
               ],
             ),
             const SizedBox(width: 10),
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.border, style: BorderStyle.solid),
-              ),
-              child: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.add_photo_alternate_outlined, color: AppColors.muted, size: 20),
-                  SizedBox(height: 2),
-                  Text(
-                    '+ Add More',
-                    style: TextStyle(fontSize: 9, color: AppColors.muted, fontWeight: FontWeight.w600),
-                  ),
-                ],
+            GestureDetector(
+              onTap: onGalleryTap,
+              child: Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.add_photo_alternate_outlined, color: AppColors.muted, size: 20),
+                    SizedBox(height: 2),
+                    Text(
+                      '+ Add More',
+                      style: TextStyle(
+                        fontSize: 9,
+                        color: AppColors.muted,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -156,7 +173,11 @@ class PhotoUploadBox extends StatelessWidget {
             const SizedBox(width: 6),
             Text(
               label,
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.primary),
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primary,
+              ),
             ),
           ],
         ),

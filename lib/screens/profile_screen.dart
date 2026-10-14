@@ -33,7 +33,7 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 12),
           _buildHeroLevelBanner(),
           const SizedBox(height: 14),
-          _buildStatsRow(),
+          _buildStatsRow(context),
           const SizedBox(height: 20),
           _buildSettingsHeader(),
           const SizedBox(height: 10),
@@ -48,9 +48,12 @@ class ProfileScreen extends StatelessWidget {
       bottomNavigationBar: BottomNavBar(
         currentIndex: 2,
         onTap: (index) {
-          final target = index == 0 ? const HomeScreen() : const ListingsScreen();
-          if (index == 0 || index == 1) {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => target));
+          if (index == 0) {
+            Navigator.pushAndRemoveUntil(context,
+                MaterialPageRoute(builder: (_) => const HomeScreen()), (r) => false);
+          } else if (index == 1) {
+            Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (_) => const ListingsScreen()));
           }
         },
       ),
@@ -173,34 +176,53 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsRow() {
+  Widget _buildStatsRow(BuildContext context) {
     final resolvePercent =
         _totalReports > 0 ? ((_reunitedCount / _totalReports) * 100).round() : 0;
 
-    return Row(
-      children: [
-        ProfileStatCard(
-          value: '$_totalReports',
-          label: 'Total Reports',
-          icon: Icons.assignment_outlined,
-          iconColor: AppColors.primary,
-        ),
-        const SizedBox(width: 8),
-        ProfileStatCard(
-          value: '$_lostCount',
-          label: 'Lost Items',
-          icon: Icons.search_rounded,
-          iconColor: AppColors.red,
-        ),
-        const SizedBox(width: 8),
-        ProfileStatCard(
-          value: '$_reunitedCount',
-          label: 'Reunited',
-          icon: Icons.card_giftcard_rounded,
-          iconColor: AppColors.green,
-          extraBadge: '$resolvePercent% resolved',
-        ),
-      ],
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ProfileStatCard(
+            value: '$_totalReports',
+            label: 'Total Reports',
+            icon: Icons.assignment_outlined,
+            iconColor: AppColors.primary,
+            onTap: () => Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => const HomeScreen(initialTypeFilter: 'All')),
+              (r) => false,
+            ),
+          ),
+          const SizedBox(width: 8),
+          ProfileStatCard(
+            value: '$_lostCount',
+            label: 'Lost Items',
+            icon: Icons.search_rounded,
+            iconColor: AppColors.red,
+            onTap: () => Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => const HomeScreen(initialTypeFilter: 'Lost')),
+              (r) => false,
+            ),
+          ),
+          const SizedBox(width: 8),
+          ProfileStatCard(
+            value: '$_reunitedCount',
+            label: 'Reunited',
+            icon: Icons.card_giftcard_rounded,
+            iconColor: AppColors.green,
+            extraBadge: '$resolvePercent% resolved',
+            onTap: () => Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const ListingsScreen(initialTab: 'Returned & Resolved'),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
