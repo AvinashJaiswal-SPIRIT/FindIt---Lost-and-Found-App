@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 
+// Filter chips
+
 class CategoryChip extends StatelessWidget {
   final String label;
   final IconData? icon;

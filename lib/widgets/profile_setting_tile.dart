@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 
+// Campus settings menu items.
+
 class ProfileSettingTile extends StatelessWidget {
   final IconData icon;
   final String title;

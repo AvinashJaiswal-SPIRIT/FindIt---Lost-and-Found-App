@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 
+// Image display from different sources
+
 class ItemImageView extends StatelessWidget {
   final String imagePath;
   final BoxFit fit;

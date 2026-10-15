@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 
+// SSO button
+
 class SsoButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;

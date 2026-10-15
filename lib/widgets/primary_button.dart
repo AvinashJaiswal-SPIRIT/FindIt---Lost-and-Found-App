@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 
+// Primary buttons
+
 class PrimaryButton extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;

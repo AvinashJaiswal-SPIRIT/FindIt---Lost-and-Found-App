@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 import 'primary_button.dart';
 
+// 	Empty placeholder view when no items match search or tabs.
+
 class EmptyState extends StatelessWidget {
   final String title;
   final String subtitle;

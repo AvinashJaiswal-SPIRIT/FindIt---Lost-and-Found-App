@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 
+// showing current recovery location.
+
 class RecoveryLocationCard extends StatelessWidget {
   final String location;
   final String subLocation;

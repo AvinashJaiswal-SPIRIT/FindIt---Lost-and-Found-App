@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 
+// 	Distance tag and map placeholder
+
 class PickupCoordinatesCard extends StatelessWidget {
   final String distance;
   final String locationTag;

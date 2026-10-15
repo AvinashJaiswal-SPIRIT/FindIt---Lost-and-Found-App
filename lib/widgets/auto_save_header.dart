@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 
+// Auto save draft
+
 class AutoSaveHeader extends StatelessWidget {
   final String text;
   final String stepText;

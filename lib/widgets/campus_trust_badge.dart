@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 
+// University verified bottom badge
+
 class CampusTrustBadge extends StatelessWidget {
   const CampusTrustBadge({super.key});
 

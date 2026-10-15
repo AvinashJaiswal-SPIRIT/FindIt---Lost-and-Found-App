@@ -2,7 +2,7 @@ import 'package:findit/screens/splash.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'core/app_theme.dart';
-import 'firebase_options.dart';
+import 'services/firebase_options.dart';
 
 
 void main() async{

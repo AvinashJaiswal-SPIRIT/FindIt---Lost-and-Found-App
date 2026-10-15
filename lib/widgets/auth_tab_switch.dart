@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 
+// Sign in and create account page switching
+
 class AuthTabSwitch extends StatelessWidget {
   final bool isSignIn;
   final VoidCallback onToggle;

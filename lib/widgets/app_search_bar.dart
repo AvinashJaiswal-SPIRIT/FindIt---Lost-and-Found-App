@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 
+// Search field
+
 class AppSearchBar extends StatelessWidget {
   final String hintText;
   final ValueChanged<String>? onChanged;

@@ -3,6 +3,8 @@ import '../core/app_colors.dart';
 import '../screens/profile_screen.dart';
 import 'app_logo.dart';
 
+// AppBar
+
 class AppHeader extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final String? subtitle;

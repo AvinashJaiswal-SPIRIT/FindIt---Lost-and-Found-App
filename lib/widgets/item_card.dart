@@ -4,6 +4,8 @@ import '../models/item_model.dart';
 import 'item_image_view.dart';
 import 'status_badge.dart';
 
+// Listing item card
+
 class ItemCard extends StatelessWidget {
   final ItemModel item;
   final VoidCallback? onTap;

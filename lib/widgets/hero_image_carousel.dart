@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 import 'item_image_view.dart';
 
+// Full width image with safety badge
+
 class HeroImageCarousel extends StatelessWidget {
   final String imageUrl;
   final String pageText;

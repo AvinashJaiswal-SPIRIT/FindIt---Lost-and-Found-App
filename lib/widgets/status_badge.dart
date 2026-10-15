@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 
+// Status of item badge
+
 class StatusBadge extends StatelessWidget {
   final String label;
   final bool showDot;

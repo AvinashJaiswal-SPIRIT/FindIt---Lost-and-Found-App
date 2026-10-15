@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 
+
+// App logo
 class AppLogo extends StatelessWidget {
   final double size;
   final double? borderRadius;

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 
+// Green "88% Recovery Rate" banner
+
 class RecoveryBanner extends StatelessWidget {
   final String rate;
   final String message;

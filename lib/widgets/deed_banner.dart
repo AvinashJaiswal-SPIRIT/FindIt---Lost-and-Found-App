@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 
+// Encouragement banner in report item page
+
 class DeedBanner extends StatelessWidget {
   const DeedBanner({super.key});
 

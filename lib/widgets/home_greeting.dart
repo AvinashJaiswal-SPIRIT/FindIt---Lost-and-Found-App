@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 
+// Greeting section
+
 class HomeGreeting extends StatelessWidget {
   final String userName;
   final int reportedCount;

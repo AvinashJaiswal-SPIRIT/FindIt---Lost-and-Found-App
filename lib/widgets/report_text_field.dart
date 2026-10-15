@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 
+// text field used in ReportItemScreen.
+
 class ReportTextField extends StatelessWidget {
   final String label;
   final String hint;

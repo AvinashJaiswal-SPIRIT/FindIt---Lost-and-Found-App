@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 
+// safe hand-off toggle switch
+
 class SafeHandoffTile extends StatelessWidget {
   final bool value;
   final ValueChanged<bool> onChanged;

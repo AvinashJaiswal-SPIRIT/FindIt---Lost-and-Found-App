@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 
+// Stat cards Total Reports, Lost Items, Reunited.
+
 class ProfileStatCard extends StatelessWidget {
   final String value;
   final String label;

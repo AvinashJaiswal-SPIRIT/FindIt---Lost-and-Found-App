@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 
+// Creator controls (Edit, Resolved, Remove).
+
 class ListingControlsCard extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onResolved;
@@ -40,7 +42,7 @@ class ListingControlsCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           const Text(
-            'Did Maya or the circulation staff complete hand-off? Keep the campus board accurate.',
+            'Did Mayank or the circulation staff complete hand-off? Keep the campus board accurate.',
             style: TextStyle(fontSize: 10, color: AppColors.muted),
           ),
           const SizedBox(height: 10),

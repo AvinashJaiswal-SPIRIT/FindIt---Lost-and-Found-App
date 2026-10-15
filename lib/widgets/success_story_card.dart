@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 
+// Recovery success story banner on auth screens
+
 class SuccessStoryCard extends StatelessWidget {
   final String rate;
   final String title;

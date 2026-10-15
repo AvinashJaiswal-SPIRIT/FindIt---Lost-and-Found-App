@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 
+// 	Reporter details, verification, response time & karma.
+
 class ReporterProfileCard extends StatelessWidget {
   final String name;
   final String role;
