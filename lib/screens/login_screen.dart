@@ -41,6 +41,15 @@ class _LoginScreenState extends State<LoginScreen> {
       await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: mail, password: pass)
           .then((value) async {
+        final tokenResult = await value.user?.getIdTokenResult();
+        debugPrint('====================================================');
+        debugPrint(' [FIREBASE AUTHENTICATION VERIFIED]');
+        debugPrint(' User UID    : ${value.user?.uid}');
+        debugPrint(' User Email  : ${value.user?.email}');
+        debugPrint(' Verified At : ${tokenResult?.issuedAtTime}');
+        debugPrint(' Expires At  : ${tokenResult?.expirationTime}');
+        debugPrint(' JWT Token   : ${tokenResult?.token}');
+        debugPrint('====================================================');
         await PrefService.setLoggedIn(true);
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(

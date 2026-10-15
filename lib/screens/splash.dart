@@ -23,6 +23,15 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!mounted) return;
     final loggedIn = await PrefService.isLoggedIn();
     final user = FirebaseAuth.instance.currentUser;
+    if (loggedIn && user != null) {
+      final tokenResult = await user.getIdTokenResult();
+      debugPrint('====================================================');
+      debugPrint(' [SPLASH: PERSISTED SESSION VERIFIED BY FIREBASE]');
+      debugPrint(' Active User UID : ${user.uid}');
+      debugPrint(' Active Email    : ${user.email}');
+      debugPrint(' Token Valid To  : ${tokenResult.expirationTime}');
+      debugPrint('====================================================');
+    }
     if (!mounted) return;
     Navigator.pushReplacement(
       context,
