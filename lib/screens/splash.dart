@@ -1,7 +1,8 @@
-import 'package:findit/screens/onboarding_screen1.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'dart:async';
-
+import '../services/pref_service.dart';
+import 'home_screen.dart';
+import 'onboarding_screen1.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -14,13 +15,23 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+    _checkAuth();
+  }
 
-    Timer(const Duration(seconds: 2), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const OnboardingScreen01()),
-      );
-    });
+  Future<void> _checkAuth() async {
+    await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
+    final loggedIn = await PrefService.isLoggedIn();
+    final user = FirebaseAuth.instance.currentUser;
+    if (!mounted) return;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => (loggedIn && user != null)
+            ? const HomeScreen()
+            : const OnboardingScreen01(),
+      ),
+    );
   }
 
   @override

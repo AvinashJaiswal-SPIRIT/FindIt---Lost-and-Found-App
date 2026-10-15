@@ -8,6 +8,7 @@ import '../widgets/primary_button.dart';
 import '../widgets/sso_button.dart';
 import '../widgets/success_story_card.dart';
 
+import '../services/pref_service.dart';
 import 'home_screen.dart';
 import 'signup_screen.dart';
 
@@ -39,7 +40,8 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: mail, password: pass)
-          .then((value) {
+          .then((value) async {
+        await PrefService.setLoggedIn(true);
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Login Successful")),

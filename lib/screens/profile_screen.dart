@@ -9,6 +9,7 @@ import '../widgets/profile_stat_card.dart';
 import 'home_screen.dart';
 import 'listings_screen.dart';
 import 'login_screen.dart';
+import '../services/pref_service.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -274,13 +275,11 @@ class ProfileScreen extends StatelessWidget {
         leading: const Icon(Icons.logout_rounded, color: AppColors.red, size: 20),
         title: const Text('Log Out', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.red)),
         onTap: () async {
+          await PrefService.clearAuth();
           await FirebaseAuth.instance.signOut();
           if (!context.mounted) return;
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (_) => const LoginScreen()),
-            (route) => false,
-          );
+          Navigator.pushAndRemoveUntil(context,
+            MaterialPageRoute(builder: (_) => const LoginScreen()), (r) => false);
         },
       ),
     );
