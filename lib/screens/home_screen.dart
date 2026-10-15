@@ -16,6 +16,7 @@ import 'item_details_screen.dart';
 import 'listings_screen.dart';
 import 'profile_screen.dart';
 import 'report_item_screen.dart';
+import '../services/firestore_service.dart';
 
 class HomeScreen extends StatefulWidget {
   final String initialTypeFilter;
@@ -29,6 +30,14 @@ class _HomeScreenState extends State<HomeScreen> {
   late String _typeFilter = widget.initialTypeFilter;
   String _categoryFilter = 'All';
   String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    FirestoreService.startRealtimeSync(onUpdate: () {
+      if (mounted) setState(() {});
+    });
+  }
 
   String get _userName {
     final user = FirebaseAuth.instance.currentUser;

@@ -70,4 +70,44 @@ class ItemModel {
       contactEmail: contactEmail ?? this.contactEmail,
     );
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'userId': userId,
+      'title': title,
+      'description': description,
+      'category': category,
+      'location': location,
+      'timeAgo': timeAgo,
+      'type': type,
+      'status': status,
+      'imageUrl': imageUrl,
+      'reportedBy': reportedBy,
+      'reportedByRole': reportedByRole,
+      'recoveryLocation': recoveryLocation,
+      'isSafeHandOff': isSafeHandOff,
+      'contactEmail': contactEmail,
+    };
+  }
+
+  factory ItemModel.fromMap(Map<String, dynamic> map, [String? docId]) {
+    return ItemModel(
+      id: docId ?? map['id']?.toString() ?? '',
+      userId: map['userId']?.toString() ?? 'user1',
+      title: map['title']?.toString() ?? '',
+      description: map['description']?.toString() ?? '',
+      category: map['category']?.toString() ?? 'Other',
+      location: map['location']?.toString() ?? '',
+      timeAgo: map['timeAgo']?.toString() ?? 'Recently',
+      type: map['type']?.toString() ?? 'Found',
+      status: map['status']?.toString() ?? 'Active',
+      imageUrl: map['imageUrl']?.toString() ?? '',
+      reportedBy: map['reportedBy']?.toString() ?? 'Campus Member',
+      reportedByRole: map['reportedByRole']?.toString() ?? 'Student',
+      recoveryLocation: map['recoveryLocation']?.toString() ?? 'Campus Help Desk',
+      isSafeHandOff: map['isSafeHandOff'] == true,
+      contactEmail: map['contactEmail']?.toString() ?? 'contact@campus.edu',
+    );
+  }
 }

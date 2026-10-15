@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../services/pref_service.dart';
+import '../services/firestore_service.dart';
 import 'home_screen.dart';
 import 'onboarding_screen1.dart';
 
@@ -31,6 +32,7 @@ class _SplashScreenState extends State<SplashScreen> {
       debugPrint(' Active Email    : ${user.email}');
       debugPrint(' Token Valid To  : ${tokenResult.expirationTime}');
       debugPrint('====================================================');
+      await FirestoreService.initialize();
     }
     if (!mounted) return;
     Navigator.pushReplacement(

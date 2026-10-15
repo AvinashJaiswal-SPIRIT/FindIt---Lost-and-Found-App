@@ -9,6 +9,7 @@ import '../widgets/sso_button.dart';
 import '../widgets/success_story_card.dart';
 
 import '../services/pref_service.dart';
+import '../services/firestore_service.dart';
 import 'home_screen.dart';
 import 'signup_screen.dart';
 
@@ -51,6 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
         debugPrint(' JWT Token   : ${tokenResult?.token}');
         debugPrint('====================================================');
         await PrefService.setLoggedIn(true);
+        await FirestoreService.initialize();
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Login Successful")),

@@ -11,6 +11,7 @@ import '../widgets/recovery_location_card.dart';
 import '../widgets/reporter_profile_card.dart';
 import '../widgets/status_badge.dart';
 import 'report_item_screen.dart';
+import '../services/firestore_service.dart';
 
 class ItemDetailsScreen extends StatelessWidget {
   final ItemModel item;
@@ -80,25 +81,22 @@ class ItemDetailsScreen extends StatelessWidget {
                 }
               },
               onResolved: () {
-                final index = sampleItems.indexWhere((i) => i.id == item.id);
-                if (index != -1) {
-                  sampleItems[index] = item.copyWith(status: 'Returned');
-                }
+                FirestoreService.updateItem(item.copyWith(status: 'Returned'));
                 ScaffoldMessenger.of(context).clearSnackBars();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    duration: const Duration(seconds: 5),
+                    duration: const Duration(seconds: 4),
                     content: Text('Marked "${item.title}" as returned!'),
                   ),
                 );
                 Navigator.pop(context, true);
               },
               onRemove: () {
-                sampleItems.removeWhere((i) => i.id == item.id);
+                FirestoreService.deleteItem(item.id);
                 ScaffoldMessenger.of(context).clearSnackBars();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    duration: const Duration(seconds: 5),
+                    duration: const Duration(seconds: 4),
                     content: Text('Removed "${item.title}" from listings'),
                   ),
                 );

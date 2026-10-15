@@ -1,8 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../core/app_colors.dart';
 import '../data/sample_items.dart';
 import '../models/item_model.dart';
+import '../services/firestore_service.dart';
 import '../widgets/app_header.dart';
 import '../widgets/auto_save_header.dart';
 import '../widgets/deed_banner.dart';
@@ -92,28 +94,25 @@ class _ReportItemScreenState extends State<ReportItemScreen> {
         : 'assets/images/report_image.jpg';
 
     if (widget.itemToEdit != null) {
-      final index = sampleItems.indexWhere((i) => i.id == widget.itemToEdit!.id);
-      if (index != -1) {
-        sampleItems[index] = widget.itemToEdit!.copyWith(
-          title: _titleController.text.trim(),
-          description: _descController.text.trim(),
-          category: _category,
-          location: _locationController.text.trim(),
-          type: _itemType,
-          isSafeHandOff: _safeHandOff,
-          imageUrl: resolvedImageUrl,
-        );
-      }
+      final updated = widget.itemToEdit!.copyWith(
+        title: _titleController.text.trim(),
+        description: _descController.text.trim(),
+        category: _category,
+        location: _locationController.text.trim(),
+        type: _itemType,
+        isSafeHandOff: _safeHandOff,
+        imageUrl: resolvedImageUrl,
+      );
+      FirestoreService.updateItem(updated);
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          duration: Duration(seconds: 5),
-          content: Text('Item updated successfully!'),
-        ),
+        const SnackBar(duration: Duration(seconds: 4), content: Text('Item updated successfully!')),
       );
     } else {
+      final user = FirebaseAuth.instance.currentUser;
       final newItem = ItemModel(
         id: 'FD-${DateTime.now().millisecondsSinceEpoch % 10000}',
+        userId: user?.uid ?? 'user1',
         title: _titleController.text.trim(),
         description: _descController.text.trim(),
         category: _category,
@@ -121,18 +120,16 @@ class _ReportItemScreenState extends State<ReportItemScreen> {
         timeAgo: 'Just now',
         type: _itemType,
         imageUrl: resolvedImageUrl,
-        reportedBy: 'Alex Rivers',
-        reportedByRole: 'Senior • Engineering',
+        reportedBy: user?.displayName ?? user?.email?.split('@')[0] ?? 'Alex Rivers',
+        reportedByRole: 'Campus Member',
         recoveryLocation: 'Student Union Room 104',
         isSafeHandOff: _safeHandOff,
+        contactEmail: user?.email ?? 'contact@campus.edu',
       );
-      sampleItems.insert(0, newItem);
+      FirestoreService.addItem(newItem);
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          duration: Duration(seconds: 5),
-          content: Text('Item reported successfully!'),
-        ),
+        const SnackBar(duration: Duration(seconds: 4), content: Text('Item reported successfully!')),
       );
     }
     Navigator.pop(context, true);

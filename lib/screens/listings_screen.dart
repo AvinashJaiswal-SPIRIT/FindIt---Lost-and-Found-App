@@ -12,6 +12,7 @@ import 'home_screen.dart';
 import 'item_details_screen.dart';
 import 'profile_screen.dart';
 import 'report_item_screen.dart';
+import '../services/firestore_service.dart';
 
 class ListingsScreen extends StatefulWidget {
   final String initialTab;
@@ -45,19 +46,15 @@ class _ListingsScreenState extends State<ListingsScreen> {
     final isCurrentlyReturned = item.status == 'Returned';
     final updatedStatus = isCurrentlyReturned ? 'Active' : 'Returned';
 
-    setState(() {
-      final index = sampleItems.indexWhere((i) => i.id == item.id);
-      if (index != -1) {
-        sampleItems[index] = item.copyWith(status: updatedStatus);
-      }
-    });
+    FirestoreService.updateItem(item.copyWith(status: updatedStatus));
+    setState(() {});
 
     _snackBarTimer?.cancel();
     final messenger = ScaffoldMessenger.of(context);
     messenger.clearSnackBars();
     messenger.showSnackBar(
       SnackBar(
-        duration: const Duration(seconds: 5),
+        duration: const Duration(seconds: 4),
         content: Text(
           isCurrentlyReturned
               ? 'Marked "${item.title}" as active!'
@@ -69,14 +66,10 @@ class _ListingsScreenState extends State<ListingsScreen> {
           onPressed: () {
             _snackBarTimer?.cancel();
             messenger.hideCurrentSnackBar();
-            setState(() {
-              final index = sampleItems.indexWhere((i) => i.id == item.id);
-              if (index != -1) {
-                sampleItems[index] = item.copyWith(
-                  status: isCurrentlyReturned ? 'Returned' : 'Active',
-                );
-              }
-            });
+            FirestoreService.updateItem(item.copyWith(
+              status: isCurrentlyReturned ? 'Returned' : 'Active',
+            ));
+            setState(() {});
           },
         ),
       ),
@@ -150,7 +143,8 @@ class _ListingsScreenState extends State<ListingsScreen> {
                 title: const Text('Remove Listing', style: TextStyle(color: AppColors.red)),
                 onTap: () {
                   Navigator.pop(context);
-                  setState(() => sampleItems.removeWhere((i) => i.id == item.id));
+                  FirestoreService.deleteItem(item.id);
+                  setState(() {});
                   _snackBarTimer?.cancel();
                   final messenger = ScaffoldMessenger.of(context);
                   messenger.clearSnackBars();
