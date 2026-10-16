@@ -35,6 +35,7 @@ class ItemModel {
     this.contactEmail = 'contact@campus.edu',
   });
 
+  // Create an updated copy of this item
   ItemModel copyWith({
     String? id,
     String? userId,
@@ -71,6 +72,7 @@ class ItemModel {
     );
   }
 
+  // Convert item model to map for Cloud Firestore storage
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -91,6 +93,7 @@ class ItemModel {
     };
   }
 
+  // Construct item model from Cloud Firestore document map
   factory ItemModel.fromMap(Map<String, dynamic> map, [String? docId]) {
     return ItemModel(
       id: docId ?? map['id']?.toString() ?? '',

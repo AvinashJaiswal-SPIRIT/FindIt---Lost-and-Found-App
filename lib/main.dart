@@ -5,6 +5,7 @@ import 'core/app_theme.dart';
 import 'services/firebase_options.dart';
 
 
+// App entry point: initializes bindings, Firebase, and launches FindItApp
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -18,13 +19,13 @@ void main() async{
     // Catches duplicate-app if already initialized on native side during Hot Restart
   }
 
-
   runApp(const FindItApp());
 }
 
 class FindItApp extends StatelessWidget {
   const FindItApp({super.key});
 
+  // Build root MaterialApp with custom theme and initial splash screen
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

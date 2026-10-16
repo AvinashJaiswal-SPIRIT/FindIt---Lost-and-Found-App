@@ -12,7 +12,7 @@ class FirestoreService {
 
   static CollectionReference<Map<String, dynamic>> get itemsCollection => _itemsCol;
 
-  /// Upload a new item to Cloud Firestore
+  // Upload a new item to Cloud Firestore
   static Future<void> addItem(ItemModel item) async {
     try {
       await _itemsCol.doc(item.id).set(item.toMap());
@@ -28,7 +28,7 @@ class FirestoreService {
     }
   }
 
-  /// Update an existing item in Cloud Firestore
+  // Update an existing item in Cloud Firestore
   static Future<void> updateItem(ItemModel item) async {
     try {
       await _itemsCol.doc(item.id).set(item.toMap(), SetOptions(merge: true));
@@ -42,7 +42,7 @@ class FirestoreService {
     }
   }
 
-  /// Delete an item from Cloud Firestore
+  // Delete an item from Cloud Firestore
   static Future<void> deleteItem(String id) async {
     try {
       await _itemsCol.doc(id).delete();
@@ -53,7 +53,7 @@ class FirestoreService {
     sampleItems.removeWhere((i) => i.id == id);
   }
 
-  /// Stream of items from Cloud Firestore
+  // Stream of items from Cloud Firestore
   static Stream<List<ItemModel>> getItemsStream() {
     return _itemsCol.snapshots().map((snapshot) {
       return snapshot.docs
@@ -62,7 +62,7 @@ class FirestoreService {
     });
   }
 
-  /// Start real-time sync with Cloud Firestore
+  // Start real-time sync with Cloud Firestore
   static void startRealtimeSync({VoidCallback? onUpdate}) {
     _subscription?.cancel();
     _subscription = _itemsCol.snapshots().listen((snapshot) {
@@ -80,7 +80,7 @@ class FirestoreService {
     });
   }
 
-  /// Initial sync & seed default items if Firestore is empty
+  // Initial sync & seed default items if Firestore is empty
   static Future<void> initialize() async {
     try {
       final snapshot = await _itemsCol.limit(1).get();

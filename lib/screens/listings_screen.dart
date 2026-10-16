@@ -26,6 +26,7 @@ class _ListingsScreenState extends State<ListingsScreen> {
   late String _activeTab = widget.initialTab;
   Timer? _snackBarTimer;
 
+  // Cancel active snackbar timers on dispose
   @override
   void dispose() {
     _snackBarTimer?.cancel();
@@ -42,6 +43,7 @@ class _ListingsScreenState extends State<ListingsScreen> {
     }).toList();
   }
 
+  // Toggle item status between active and returned with undo support
   void _markAsReturned(ItemModel item) {
     final isCurrentlyReturned = item.status == 'Returned';
     final updatedStatus = isCurrentlyReturned ? 'Active' : 'Returned';
@@ -82,6 +84,7 @@ class _ListingsScreenState extends State<ListingsScreen> {
     });
   }
 
+  // Navigate to report item screen in edit mode
   void _editItem(ItemModel item) async {
     final updated = await Navigator.push<bool>(
       context,
@@ -94,6 +97,7 @@ class _ListingsScreenState extends State<ListingsScreen> {
     }
   }
 
+  // Navigate to report item screen to create new listing
   void _createNewListing() async {
     final created = await Navigator.push<bool>(
       context,
@@ -106,6 +110,7 @@ class _ListingsScreenState extends State<ListingsScreen> {
     }
   }
 
+  // Display action bottom sheet for editing, returning, or removing item
   void _showItemActions(ItemModel item) {
     showModalBottomSheet(
       context: context,
@@ -166,6 +171,7 @@ class _ListingsScreenState extends State<ListingsScreen> {
     );
   }
 
+  // Open bottom sheet to sort listings by date or title
   void _showSortSheet() {
     showModalBottomSheet(
       context: context,

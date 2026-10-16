@@ -111,6 +111,7 @@ class ItemDetailsScreen extends StatelessWidget {
     );
   }
 
+  // Build item ID and status badge header row
   Widget _buildItemHeaderRow() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -132,6 +133,7 @@ class ItemDetailsScreen extends StatelessWidget {
     );
   }
 
+  // Build subheader with timestamp, location, and status banner
   Widget _buildSubheaderSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -207,6 +209,7 @@ class ItemDetailsScreen extends StatelessWidget {
     );
   }
 
+  // Build description and item details section
   Widget _buildDescriptionSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -224,6 +227,7 @@ class ItemDetailsScreen extends StatelessWidget {
     );
   }
 
+  // Build reporter section title with department badge
   Widget _buildReportedByHeader() {
     return const Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -240,6 +244,7 @@ class ItemDetailsScreen extends StatelessWidget {
     );
   }
 
+  // Build sticky bottom action bar with contact and directions
   Widget _buildBottomActionBar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),

@@ -31,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String _categoryFilter = 'All';
   String _searchQuery = '';
 
+  // Initialize state and subscribe to real-time Firestore updates
   @override
   void initState() {
     super.initState();
@@ -149,6 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
 
+  // Build horizontal filter bar for item types (All, Lost, Found)
   Widget _buildTypeFilterRow() {
     final filters = [
       {'key': 'All', 'label': 'All Items ($_totalCount)'},
@@ -182,6 +184,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // Build horizontal scrollable category selector chips
   Widget _buildCategoryFilterRow() {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -208,6 +211,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // Open bottom modal sheet for type filtering
   void _openFilterModal() {
     showModalBottomSheet(
       context: context,
@@ -253,6 +257,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // Build list of filtered item cards or empty state view
   List<Widget> _buildItemsList() {
     final items = _filteredItems;
     if (items.isEmpty) {

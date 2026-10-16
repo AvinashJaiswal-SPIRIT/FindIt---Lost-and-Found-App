@@ -13,12 +13,14 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  // Initialize splash state and trigger authentication check
   @override
   void initState() {
     super.initState();
     _checkAuth();
   }
 
+  // Verify stored login session and route to Home or Onboarding
   Future<void> _checkAuth() async {
     await Future.delayed(const Duration(seconds: 2));
     if (!mounted) return;

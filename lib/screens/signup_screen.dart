@@ -23,6 +23,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
+  // Clean up text editing controllers
   @override
   void dispose() {
     _nameController.dispose();
@@ -31,6 +32,7 @@ class _SignupScreenState extends State<SignupScreen> {
     super.dispose();
   }
 
+  // Create new user account with Firebase authentication
   void _handleSignup() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     final name = _nameController.text.trim();
@@ -151,6 +153,7 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
+  // Build full name input field
   Widget _buildNameField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,6 +176,7 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
+  // Build campus email input field
   Widget _buildEmailField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -196,6 +200,7 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
+  // Build password input field with validation
   Widget _buildPasswordField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -227,6 +232,7 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
+  // Build visual divider for alternate access
   Widget _buildDivider() {
     return const Row(
       children: [
@@ -243,6 +249,7 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
+  // Build footer navigation to sign in screen
   Widget _buildFooterLink() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,

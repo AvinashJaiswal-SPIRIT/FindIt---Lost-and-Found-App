@@ -42,6 +42,7 @@ class _ReportItemScreenState extends State<ReportItemScreen> {
     'Other',
   ];
 
+  // Initialize form controllers and pre-fill data if editing existing item
   @override
   void initState() {
     super.initState();
@@ -59,6 +60,7 @@ class _ReportItemScreenState extends State<ReportItemScreen> {
     }
   }
 
+  // Clean up form text controllers
   @override
   void dispose() {
     _titleController.dispose();
@@ -68,6 +70,7 @@ class _ReportItemScreenState extends State<ReportItemScreen> {
     super.dispose();
   }
 
+  // Pick image from camera or photo gallery
   Future<void> _pickImage(ImageSource source) async {
     try {
       final picker = ImagePicker();
@@ -87,6 +90,7 @@ class _ReportItemScreenState extends State<ReportItemScreen> {
     }
   }
 
+  // Validate form and upload or update item in Cloud Firestore
   void _submitReport() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     final resolvedImageUrl = (_selectedImagePath != null && _selectedImagePath!.isNotEmpty)
@@ -231,6 +235,7 @@ class _ReportItemScreenState extends State<ReportItemScreen> {
     );
   }
 
+  // Build category dropdown selection field
   Widget _buildCategoryDropdown() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -250,6 +255,7 @@ class _ReportItemScreenState extends State<ReportItemScreen> {
     );
   }
 
+  // Build campus location text field
   Widget _buildLocationField() {
     return ReportTextField(
       label: 'Campus Location / Building *',
@@ -264,6 +270,7 @@ class _ReportItemScreenState extends State<ReportItemScreen> {
     );
   }
 
+  // Build date and estimated time input field
   Widget _buildDateField() {
     return ReportTextField(
       label: 'Date & Estimated Time *',
@@ -273,6 +280,7 @@ class _ReportItemScreenState extends State<ReportItemScreen> {
     );
   }
 
+  // Build item description text field
   Widget _buildDescriptionField() {
     return ReportTextField(
       label: 'Detailed Description',

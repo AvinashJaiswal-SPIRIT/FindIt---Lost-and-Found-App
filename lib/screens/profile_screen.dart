@@ -70,6 +70,7 @@ class ProfileScreen extends StatelessWidget {
           i.status.toLowerCase() == 'resolved')
       .length;
 
+  // Build user profile card with avatar and member status
   Widget _buildUserProfileCard() {
     final user = FirebaseAuth.instance.currentUser;
     final displayName = (user?.displayName != null && user!.displayName!.trim().isNotEmpty)
@@ -120,23 +121,13 @@ class ProfileScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                displayName,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.text,
-                ),
-              ),
+              Text(displayName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.text)),
               const SizedBox(width: 4),
               const Icon(Icons.verified, size: 16, color: AppColors.primary),
             ],
           ),
           const SizedBox(height: 2),
-          Text(
-            email,
-            style: const TextStyle(fontSize: 12, color: AppColors.muted),
-          ),
+          Text(email, style: const TextStyle(fontSize: 12, color: AppColors.muted)),
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -151,6 +142,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  // Build campus hero announcement banner
   Widget _buildHeroLevelBanner() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -165,11 +157,7 @@ class ProfileScreen extends StatelessWidget {
           Expanded(
             child: Text(
               "Campus Hero: You've reunited $_reunitedCount items for fellow students this semester!",
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF92400E),
-              ),
+              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
             ),
           ),
         ],
@@ -177,6 +165,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  // Build statistical summary cards row for reported and reunited items
   Widget _buildStatsRow(BuildContext context) {
     final resolvePercent =
         _totalReports > 0 ? ((_reunitedCount / _totalReports) * 100).round() : 0;
@@ -227,6 +216,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  // Build settings section header title
   Widget _buildSettingsHeader() {
     return const Text(
       'CAMPUS & ACCOUNT SETTINGS',
@@ -239,6 +229,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  // Build list of campus and account configuration tiles
   Widget _buildSettingsList(BuildContext context) {
     final settings = [
       {'icon': Icons.badge_outlined, 'title': 'Campus Affiliation & Student ID', 'sub': 'ID: •••• 8842 (Engineering Quad)', 'color': AppColors.blue},
@@ -259,6 +250,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  // Build small status badge container
   Widget _buildBadge(String text, Color bg, Color textCol) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -267,6 +259,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  // Build logout button with session clearing and navigation
   Widget _buildLogoutButton(BuildContext context) {
     return Container(
       decoration: BoxDecoration(color: AppColors.redLight, borderRadius: BorderRadius.circular(12)),
@@ -285,6 +278,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  // Build app version and campus honor code footer
   Widget _buildFooterText() {
     return const Column(
       children: [
